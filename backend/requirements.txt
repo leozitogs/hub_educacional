@@ -1,0 +1,34 @@
+# ============================================================================
+# Hub Inteligente de Recursos Educacionais - Dependências do Backend
+# ============================================================================
+# Autor: Leonardo Gonçalves Sobral - 19 anos
+#        Ciência da Computação - 3° Período
+# ============================================================================
+
+# ── Framework Web ───────────────────────────────────────────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# ── Validação de Dados ──────────────────────────────────────────────────
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# ── ORM e Banco de Dados ───────────────────────────────────────────────
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+greenlet==3.1.1
+
+# ── Cliente HTTP Assíncrono ─────────────────────────────────────────────
+httpx==0.28.1
+
+# ── Variáveis de Ambiente ──────────────────────────────────────────────
+python-dotenv==1.0.1
+
+# ── Linters e Formatadores (Dev) ───────────────────────────────────────
+flake8==7.1.1
+black==24.10.0
+
+# ── Testes (Dev) ────────────────────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.25.0
+httpx==0.28.1

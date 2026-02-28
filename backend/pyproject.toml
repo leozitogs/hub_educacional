@@ -1,0 +1,22 @@
+# ============================================================================
+# Hub Inteligente de Recursos Educacionais - Configuração do Black
+# ============================================================================
+# Autor: Leonardo Gonçalves Sobral - 19 anos
+#        Ciência da Computação - 3° Período
+# ============================================================================
+
+[tool.black]
+line-length = 120
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    __pycache__
+  | \.venv
+  | migrations
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

@@ -1,0 +1,182 @@
+/**
+ * ============================================================================
+ * Hub Inteligente de Recursos Educacionais - Estilos Globais
+ * ============================================================================
+ * Autor: Leonardo Gonçalves Sobral - 19 anos
+ *        Ciência da Computação - 3° Período
+ * ============================================================================
+ *
+ * Este arquivo define os estilos globais da aplicação, incluindo:
+ *   - Diretivas do Tailwind CSS (base, components, utilities)
+ *   - Classes utilitárias de Glassmorphism
+ *   - Efeitos de Liquid Glass
+ *   - Animações de fundo (gradientes animados)
+ *   - Scrollbar customizada (estilo Apple)
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Reset e Base ───────────────────────────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-ghost text-persian-800 font-sans;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(39, 24, 126, 0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(39, 24, 126, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(39, 24, 126, 0.02) 0%, transparent 50%);
+    min-height: 100vh;
+  }
+
+  /* Seleção de texto com cor da paleta */
+  ::selection {
+    @apply bg-persian-200 text-persian-900;
+  }
+}
+
+/* ── Componentes de Glassmorphism ───────────────────────────────────── */
+/*
+ * Glassmorphism é um estilo de design que simula vidro fosco.
+ * A "física" do efeito funciona assim:
+ *
+ * 1. backdrop-filter: blur(Npx) — Aplica desfoque gaussiano ao conteúdo
+ *    ATRÁS do elemento, simulando vidro translúcido. Quanto maior o blur,
+ *    mais opaco parece o "vidro".
+ *
+ * 2. background: rgba(R,G,B,A) — Cor de fundo semi-transparente que
+ *    permite que o blur do backdrop seja visível. O alpha (A) controla
+ *    a opacidade do "vidro".
+ *
+ * 3. border: 1px solid rgba(255,255,255,0.2) — Borda sutil que simula
+ *    a refração da luz na borda do vidro.
+ *
+ * 4. box-shadow — Sombra suave que cria profundidade e separação do fundo.
+ */
+@layer components {
+  /* Glassmorphism Padrão */
+  .glass {
+    @apply bg-white/60 backdrop-blur-xl border border-white/30 shadow-glass;
+  }
+
+  /* Glassmorphism Forte (mais opaco) */
+  .glass-strong {
+    @apply bg-white/80 backdrop-blur-2xl border border-white/40 shadow-glass-lg;
+  }
+
+  /* Glassmorphism Sutil (mais transparente) */
+  .glass-subtle {
+    @apply bg-white/40 backdrop-blur-lg border border-white/20 shadow-glass;
+  }
+
+  /* Liquid Glass — Efeito de vidro líquido com gradiente interno */
+  /*
+   * O Liquid Glass adiciona ao Glassmorphism um gradiente interno que
+   * simula a refração de luz em vidro curvo. O gradiente vai de branco
+   * semi-transparente (topo) para transparente (base), criando a ilusão
+   * de uma superfície convexa que reflete luz.
+   */
+  .liquid-glass {
+    @apply relative overflow-hidden;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(247, 247, 255, 0.6) 100%
+    );
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow:
+      0 8px 32px rgba(39, 24, 126, 0.08),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+
+  /* Card com Glassmorphism e hover interativo */
+  .glass-card {
+    @apply glass rounded-3xl p-6 transition-all duration-500 ease-out;
+  }
+
+  .glass-card:hover {
+    @apply shadow-glass-lg;
+    transform: translateY(-2px);
+  }
+
+  /* Botão com estilo Persian (cor principal) */
+  .btn-persian {
+    @apply bg-persian text-white font-semibold px-6 py-3 rounded-2xl
+           transition-all duration-300 ease-out
+           hover:bg-persian-600 hover:shadow-persian
+           active:scale-[0.97] active:shadow-none
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none;
+  }
+
+  /* Botão Ghost (secundário) */
+  .btn-ghost {
+    @apply bg-white/50 text-persian-700 font-medium px-6 py-3 rounded-2xl
+           border border-persian-100 backdrop-blur-sm
+           transition-all duration-300 ease-out
+           hover:bg-white/80 hover:border-persian-200 hover:shadow-glass
+           active:scale-[0.97];
+  }
+
+  /* Input com estilo Glassmorphism */
+  .input-glass {
+    @apply w-full px-4 py-3 rounded-2xl
+           bg-white/60 backdrop-blur-sm
+           border border-persian-100/50
+           text-persian-800 placeholder-persian-300
+           transition-all duration-300 ease-out
+           focus:outline-none focus:ring-2 focus:ring-persian-300/50
+           focus:border-persian-300 focus:bg-white/80
+           hover:border-persian-200;
+  }
+
+  /* Badge/Tag com estilo sutil */
+  .tag-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+           bg-persian-50 text-persian-600 border border-persian-100/50
+           transition-all duration-200
+           hover:bg-persian-100 hover:text-persian-700;
+  }
+}
+
+/* ── Scrollbar Customizada (Estilo Apple) ───────────────────────────── */
+@layer utilities {
+  /* Scrollbar fina e elegante para Webkit (Chrome, Safari, Edge) */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(39, 24, 126, 0.15);
+    border-radius: 3px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(39, 24, 126, 0.3);
+  }
+
+  /* Efeito shimmer para loading states */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(39, 24, 126, 0.04) 25%,
+      rgba(39, 24, 126, 0.08) 50%,
+      rgba(39, 24, 126, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+}
