@@ -1,6 +1,4 @@
-<p align="center">
-  # Hub Inteligente de Recursos Educacionais
-</p>
+# Hub Inteligente de Recursos Educacionais
 
 <p align="center">
   <strong>Autor: Leonardo Gonçalves Sobral</strong><br>
