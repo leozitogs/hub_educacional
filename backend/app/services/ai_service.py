@@ -56,20 +56,35 @@ settings = get_settings()
 # Este prompt é o "cérebro" da funcionalidade Smart Assist. Cada linha
 # foi projetada para maximizar a qualidade e consistência das respostas.
 
-SYSTEM_PROMPT = """Você é um Assistente Pedagógico Especializado em curadoria de materiais educacionais para ensino superior. Sua função é auxiliar professores e alunos na catalogação inteligente de recursos didáticos.
-
-REGRAS OBRIGATÓRIAS:
-1. Você DEVE responder EXCLUSIVAMENTE em formato JSON válido, sem markdown, sem explicações adicionais, sem blocos de código.
-2. O JSON deve conter exatamente dois campos: "description" (string) e "tags" (array de 3 strings).
-3. A descrição deve ter entre 2 e 4 frases, ser informativa e útil para alunos universitários.
-4. A descrição deve explicar o que o aluno aprenderá ou encontrará no recurso.
-5. As 3 tags devem ser palavras-chave relevantes em português, em letras minúsculas.
-6. Adapte o tom e vocabulário ao tipo de recurso (vídeo = linguagem dinâmica, PDF = linguagem técnica, link = linguagem informativa).
-
-EXEMPLO DE SAÍDA ESPERADA:
-{"description": "Este vídeo apresenta os conceitos fundamentais de derivadas e integrais, essenciais para o curso de Cálculo I. O aluno aprenderá a resolver problemas práticos de taxa de variação e área sob curvas, com exemplos resolvidos passo a passo.", "tags": ["cálculo", "derivadas", "integrais"]}
-
-IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto antes ou depois."""
+SYSTEM_PROMPT = (
+    "Você é um Assistente Pedagógico Especializado em curadoria de "
+    "materiais educacionais para ensino superior. Sua função é auxiliar "
+    "professores e alunos na catalogação inteligente de recursos "
+    "didáticos.\n\n"
+    "REGRAS OBRIGATÓRIAS:\n"
+    "1. Você DEVE responder EXCLUSIVAMENTE em formato JSON válido, "
+    "sem markdown, sem explicações adicionais, sem blocos de código.\n"
+    '2. O JSON deve conter exatamente dois campos: "description" '
+    '(string) e "tags" (array de 3 strings).\n'
+    "3. A descrição deve ter entre 2 e 4 frases, ser informativa e "
+    "útil para alunos universitários.\n"
+    "4. A descrição deve explicar o que o aluno aprenderá ou "
+    "encontrará no recurso.\n"
+    "5. As 3 tags devem ser palavras-chave relevantes em português, "
+    "em letras minúsculas.\n"
+    "6. Adapte o tom e vocabulário ao tipo de recurso "
+    "(vídeo = linguagem dinâmica, PDF = linguagem técnica, "
+    "link = linguagem informativa).\n\n"
+    "EXEMPLO DE SAÍDA ESPERADA:\n"
+    '{"description": "Este vídeo apresenta os conceitos fundamentais '
+    "de derivadas e integrais, essenciais para o curso de Cálculo I. "
+    "O aluno aprenderá a resolver problemas práticos de taxa de "
+    "variação e área sob curvas, com exemplos resolvidos passo a "
+    'passo.", "tags": ["cálculo", "derivadas", "integrais"]}'
+    "\n\n"
+    "IMPORTANTE: Retorne APENAS o JSON, sem nenhum texto antes "
+    "ou depois."
+)
 
 
 class AIService:
@@ -133,21 +148,14 @@ class AIService:
         )
 
         return {
-            "systemInstruction": {
-                "parts": [{"text": SYSTEM_PROMPT}]
-            },
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [{"text": user_message}]
-                }
-            ],
+            "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "contents": [{"role": "user", "parts": [{"text": user_message}]}],
             "generationConfig": {
-                "temperature": 0.7,       # Balanceamento entre criatividade e consistência
-                "topP": 0.9,              # Nucleus sampling para diversidade controlada
-                "topK": 40,               # Limita o vocabulário considerado
-                "maxOutputTokens": 500,   # Limite de tokens na resposta
-            }
+                "temperature": 0.7,  # Balanceamento entre criatividade e consistência
+                "topP": 0.9,  # Nucleus sampling para diversidade controlada
+                "topK": 40,  # Limita o vocabulário considerado
+                "maxOutputTokens": 500,  # Limite de tokens na resposta
+            },
         }
 
     def _parse_gemini_response(self, response_data: dict[str, Any]) -> dict[str, Any]:
@@ -230,9 +238,7 @@ class AIService:
         except (KeyError, IndexError, TypeError) as e:
             raise ValueError(f"Erro ao processar resposta do Gemini: {str(e)}")
 
-    async def generate_description(
-        self, title: str, resource_type: str
-    ) -> dict[str, Any]:
+    async def generate_description(self, title: str, resource_type: str) -> dict[str, Any]:
         """
         Gera descrição pedagógica e tags via API do Google Gemini.
 
@@ -262,10 +268,7 @@ class AIService:
             return self._generate_mock_response(title, resource_type)
 
         # URL da API com modelo e chave de autenticação
-        url = (
-            f"{self.base_url}/models/{self.model}:generateContent"
-            f"?key={self.api_key}"
-        )
+        url = f"{self.base_url}/models/{self.model}:generateContent" f"?key={self.api_key}"
 
         payload = self._build_request_payload(title, resource_type)
         start_time = time.perf_counter()
@@ -325,10 +328,7 @@ class AIService:
                 success=False,
             )
             logger.error(f"Erro de conexão com a API Gemini: {str(e)}")
-            raise ValueError(
-                "Não foi possível conectar à API do Gemini. "
-                "Verifique sua conexão com a internet."
-            )
+            raise ValueError("Não foi possível conectar à API do Gemini. " "Verifique sua conexão com a internet.")
 
         except ValueError:
             # Re-raise ValueError do parsing sem encapsular
@@ -384,8 +384,7 @@ class AIService:
         }
 
         description = type_descriptions.get(
-            resource_type,
-            f"Recurso educacional sobre '{title}' com conteúdo relevante para estudantes universitários."
+            resource_type, f"Recurso educacional sobre '{title}' com conteúdo relevante para estudantes universitários."
         )
 
         # Gera tags baseadas no título (palavras significativas)
@@ -393,6 +392,6 @@ class AIService:
         words = [w.lower() for w in title.split() if w.lower() not in stop_words and len(w) > 2]
         tags = (words[:3] if len(words) >= 3 else words + ["educação", "aprendizado", "estudo"])[:3]
 
-        logger.info(f"Resposta mock gerada para: Title=\"{title}\", Type=\"{resource_type}\"")
+        logger.info(f'Resposta mock gerada para: Title="{title}", Type="{resource_type}"')
 
         return {"description": description, "tags": tags}
