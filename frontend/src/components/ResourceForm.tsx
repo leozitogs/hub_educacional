@@ -27,7 +27,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Loader2, AlertCircle, Tag, Plus } from 'lucide-react';
+import { X, Sparkles, Loader2, AlertCircle, Plus } from 'lucide-react';
 import { Resource, ResourceCreateData, ResourceUpdateData, ResourceType, generateWithAI } from '../services/api';
 import toast from 'react-hot-toast';
 

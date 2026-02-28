@@ -78,41 +78,25 @@ export default function ResourceCard({ resource, index, onEdit, onDelete }: Reso
   };
 
   return (
-    <motion.div
-      /**
-       * Animação de entrada em cascata:
-       *
-       * initial: Card começa invisível (opacity: 0) e deslocado 30px para baixo.
-       * animate: Move para posição final com fade in completo.
-       * transition: O delay é calculado como index * 0.08, criando o efeito
-       *   cascata. A duração de 0.5s com easeOut produz um movimento suave.
-       *
-       * A física por trás: cada card é tratado como um objeto em queda livre
-       * com amortecimento. O delay crescente simula objetos caindo em sequência,
-       * como dominós ou cartas sendo distribuídas.
-       */
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
-      transition={{
-        duration: 0.5,
-        delay: index * 0.08,
-        ease: [0, 0, 0.58, 1], // easeOut cubic-bezier
-      }}
-      /**
-       * Microinteração de hover:
-       * - translateY(-4px): Eleva o card, simulando que "flutua".
-       * - A sombra aumenta via CSS (glass-card:hover), reforçando a profundidade.
-       *
-       * O spring com stiffness=400 e damping=25 cria um "snap" rápido
-       * mas suave, similar ao feedback tátil de interfaces Apple.
-       */
-      whileHover={{ y: -4 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-      className="glass-card group"
-      layout
-      layoutId={`resource-${resource.id}`}
-    >
+  <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
+        // Unificamos as transições aqui
+        transition={{
+          duration: 0.5,
+          delay: index * 0.08,
+          ease: [0, 0, 0.58, 1],
+          // Adicionamos as configurações de spring como default para gestos (hover/tap)
+          type: 'spring', 
+          stiffness: 400, 
+          damping: 25 
+        }}
+        whileHover={{ y: -4 }}
+        className="glass-card group"
+        layout
+        layoutId={`resource-${resource.id}`}
+      >
       {/* ── Header do Card ──────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-start gap-3 flex-1 min-w-0">
