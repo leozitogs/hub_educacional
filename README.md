@@ -110,49 +110,73 @@ Arquitetura de componentes reutilizáveis e hooks customizados:
 ### 1. Clonar o Repositório
 
 ```bash
-git clone https://github.com/seu-usuario/hub-educacional.git
-cd hub-educacional
+git clone https://github.com/leozitogs/hub_educacional.git
+cd hub_educacional
 
-Obs: substitua https://github.com/seu-usuario/hub-educacional.git pelo link real do seu repositório.
+Substitua o link caso esteja usando um fork.
 
 2. Configurar o Backend
 cd backend
+
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Linux/Mac
+source .venv/bin/activate
+
+# Windows
+.venv\Scripts\activate
+
 pip install -r requirements.txt
+
 cp .env.example .env
-# editar .env com DATABASE_URL e GEMINI_API_KEY
 
-DATABASE_URL: ex.: postgresql+asyncpg://usuario:senha@localhost:5432/hub_educacional
+Editar .env:
 
-GEMINI_API_KEY: chave da API do Google Gemini (Google AI Studio / Console)
+DATABASE_URL=postgresql+asyncpg://usuario:senha@localhost:5432/hub_educacional
 
-Criar o banco no PostgreSQL (ex.: hub_educacional) e, em seguida:
+GEMINI_API_KEY=sua_chave_gemini
+
+Criar banco PostgreSQL:
+
+hub_educacional
+
+Rodar backend:
 
 uvicorn app.main:app --reload
 
-A API rodará em http://localhost:8000 (Swagger: http://localhost:8000/docs).
+API disponível em:
 
+http://localhost:8000
+
+Swagger:
+
+http://localhost:8000/docs
 3. Configurar o Frontend
 cd frontend
+
 npm install
+
 npm run dev
 
-O frontend estará disponível em http://localhost:5173 (Vite). Ajuste as variáveis de ambiente se necessário para apontar para o backend local.
+Frontend disponível em:
 
+http://localhost:5173
 7. Documentação da API
 
-Prefixo: /api/v1
+Prefixo:
 
+/api/v1
+Endpoints
 Método	Endpoint	Descrição
-GET	/resources	Lista recursos com paginação e filtros.
-GET	/resources/{id}	Obtém um recurso específico pelo ID.
-POST	/resources	Cria um novo recurso educacional.
-PUT	/resources/{id}	Atualiza um recurso existente.
-DELETE	/resources/{id}	Exclui um recurso.
-POST	/ai/generate	Gera descrição e tags com IA.
-GET	/health	Endpoint de Health Check.
+GET	/resources	Lista recursos com paginação
+GET	/resources/{id}	Obtém recurso por ID
+POST	/resources	Cria novo recurso
+PUT	/resources/{id}	Atualiza recurso
+DELETE	/resources/{id}	Remove recurso
+POST	/ai/generate	Gera descrição com IA
+GET	/health	Health Check
 
-A documentação interativa (Swagger/OpenAPI) está disponível em http://localhost:8000/docs quando o backend está ativo.
+Documentação interativa disponível em:
 
+http://localhost:8000/docs
 <p align="center"> <strong>Desenvolvido com 💙 por Leonardo Gonçalves Sobral</strong> </p> ```
