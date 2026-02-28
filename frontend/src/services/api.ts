@@ -98,7 +98,7 @@ export interface ListParams {
  * a latência da API do Gemini (que pode levar 5-15s).
  */
 const api: AxiosInstance = axios.create({
-  baseURL: '/api/v1',
+  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
