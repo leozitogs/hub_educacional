@@ -12,6 +12,7 @@
  *   - Efeitos de Liquid Glass
  *   - Animações de fundo (gradientes animados)
  *   - Scrollbar customizada (estilo Apple)
+ *   - Hero Section gradient text e animações premium
  *   - Otimizações de performance para scroll suave
  */
 
@@ -155,6 +156,29 @@
            transition-all duration-200
            hover:bg-persian-100 hover:text-persian-700;
   }
+
+  /* ── Hero Section: Gradient Text ─────────────────────────────────── */
+  /*
+   * Texto com gradiente animado que percorre as cores do design system.
+   * O efeito usa background-clip: text para aplicar o gradiente como
+   * cor do texto, e background-size: 200% para permitir a animação
+   * de deslocamento do gradiente.
+   */
+  .hero-gradient-text {
+    background: linear-gradient(
+      135deg,
+      #27187E 0%,
+      #7569C3 25%,
+      #9333EA 50%,
+      #7569C3 75%,
+      #27187E 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: hero-gradient-shift 4s ease-in-out infinite;
+  }
 }
 
 /* ── Scrollbar Customizada (Estilo Apple) ───────────────────────────── */
@@ -189,9 +213,16 @@
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
+
+  /* Radial gradient utility for hero background */
+  .bg-gradient-radial {
+    background: radial-gradient(var(--tw-gradient-stops));
+  }
 }
 
 /* ── Keyframes ──────────────────────────────────────────────────────── */
+
+/* Shimmer para loading states */
 @keyframes shimmer {
   0% {
     background-position: 200% 0;
@@ -201,6 +232,7 @@
   }
 }
 
+/* Gradiente animado genérico (botão IA) */
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
@@ -210,6 +242,19 @@
   }
   100% {
     background-position: 0% 50%;
+  }
+}
+
+/* Gradiente animado do Hero Section */
+@keyframes hero-gradient-shift {
+  0% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: 0% center;
   }
 }
 
