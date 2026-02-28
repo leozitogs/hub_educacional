@@ -226,7 +226,7 @@ class AIService:
                         # Tenta limpar caracteres problemáticos
                         json_candidate = text[start:end]
                         # Remove quebras de linha dentro de strings
-                        json_candidate = re.sub(r'(?<=\w)\n(?=\w)', ' ', json_candidate)
+                        json_candidate = re.sub(r"(?<=\w)\n(?=\w)", " ", json_candidate)
                         try:
                             result = json.loads(json_candidate)
                         except json.JSONDecodeError:
@@ -365,10 +365,7 @@ class AIService:
                 success=False,
             )
             logger.error(f"Timeout na API Gemini após {latency:.1f}s: {str(e)}")
-            raise ValueError(
-                "A API do Gemini demorou muito para responder. "
-                "Tente novamente em alguns instantes."
-            )
+            raise ValueError("A API do Gemini demorou muito para responder. " "Tente novamente em alguns instantes.")
 
         except httpx.RequestError as e:
             latency = time.perf_counter() - start_time
