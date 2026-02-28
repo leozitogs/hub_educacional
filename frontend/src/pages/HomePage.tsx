@@ -8,6 +8,7 @@
  *
  * Página principal da aplicação que orquestra todos os componentes:
  *   - Header com Glassmorphism
+ *   - Hero Section com chamada visual atrativa
  *   - SearchBar com debounce e filtros
  *   - Grid de ResourceCards com animações em cascata
  *   - Pagination com navegação intuitiva
@@ -15,22 +16,21 @@
  *   - DeleteConfirmModal para exclusão segura
  *   - EmptyState e LoadingSkeleton para feedback visual
  *
- * Integração com anime.js:
- *   O anime.js é utilizado para animações mais complexas que o Framer
- *   Motion não cobre nativamente, como animações de partículas no
- *   background e efeitos de morphing em SVGs. Nesta página, é usado
- *   para animar os orbs decorativos do fundo com trajetórias orgânicas.
- *
  * Arquitetura de Estado:
  *   O estado é gerenciado pelo custom hook useResources, que encapsula
  *   toda a lógica de fetch, paginação e CRUD. A página atua apenas
  *   como "orquestradora" de componentes, delegando lógica ao hook.
+ *
+ * Otimização de Performance:
+ *   - Animações de orbs simplificadas com CSS puro (sem anime.js no loop)
+ *   - will-change aplicado em elementos animados para GPU acceleration
+ *   - Redução de re-renders com useCallback e useMemo
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import anime from 'animejs/lib/anime.es.js';
-import { Plus } from 'lucide-react';
+import { Plus, Sparkles, BookOpen, Zap, Brain } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import Header from '../components/Header';
@@ -74,21 +74,7 @@ export default function HomePage() {
   // ── Animação anime.js dos Orbs Decorativos ───────────────────────────
   /**
    * Utiliza anime.js para criar animações de orbs flutuantes no fundo.
-   *
-   * anime.js opera diretamente no DOM (imperativo), diferente do Framer
-   * Motion (declarativo via React). É ideal para animações de background
-   * que não dependem do estado do React.
-   *
-   * A animação usa:
-   *   - translateX/translateY: Movimento aleatório em 2D.
-   *   - scale: Pulsação suave para efeito de "respiração".
-   *   - easing: 'easeInOutSine' para movimento orgânico (senoidal).
-   *   - loop: true para animação infinita.
-   *   - direction: 'alternate' para ida e volta suave.
-   *
-   * A física senoidal (easeInOutSine) simula movimento pendular,
-   * onde a velocidade é máxima no centro e zero nas extremidades,
-   * criando um efeito de flutuação natural.
+   * Animação executada apenas uma vez no mount para evitar re-renders.
    */
   useEffect(() => {
     if (orbsRef.current) {
@@ -137,50 +123,106 @@ export default function HomePage() {
     }
   }, [deleteTarget, handleDelete]);
 
+  // ── Features para o Hero Section ─────────────────────────────────────
+  const heroFeatures = useMemo(() => [
+    {
+      icon: Brain,
+      title: 'IA Integrada',
+      description: 'Gere descrições pedagógicas automaticamente com Google Gemini',
+    },
+    {
+      icon: Zap,
+      title: 'Organização Inteligente',
+      description: 'Categorize e encontre recursos com tags e filtros avançados',
+    },
+    {
+      icon: BookOpen,
+      title: 'Curadoria Simplificada',
+      description: 'Cadastre vídeos, PDFs e links em um hub centralizado',
+    },
+  ], []);
+
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-x-hidden">
       {/* ── Orbs Decorativos (Background) ───────────────────────────── */}
-      {/*
-       * Os orbs são elementos decorativos posicionados absolutamente no
-       * fundo da página. Cada orb é um div com gradiente radial e blur,
-       * criando manchas de cor suaves que reforçam o tema Glassmorphism.
-       *
-       * A animação via anime.js faz os orbs flutuarem lentamente,
-       * criando um fundo "vivo" sem distrair o conteúdo principal.
-       */}
       <div ref={orbsRef} className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
-        <div className="orb absolute top-[10%] left-[15%] w-72 h-72 rounded-full bg-gradient-to-br from-persian-200/30 to-purple-200/20 blur-3xl" />
-        <div className="orb absolute top-[60%] right-[10%] w-96 h-96 rounded-full bg-gradient-to-br from-persian-100/20 to-blue-200/15 blur-3xl" />
-        <div className="orb absolute bottom-[10%] left-[40%] w-64 h-64 rounded-full bg-gradient-to-br from-purple-200/20 to-persian-100/15 blur-3xl" />
-        <div className="orb absolute top-[30%] right-[30%] w-48 h-48 rounded-full bg-gradient-to-br from-persian-200/15 to-pink-200/10 blur-3xl" />
+        <div className="orb absolute top-[10%] left-[15%] w-72 h-72 rounded-full bg-gradient-to-br from-persian-200/30 to-purple-200/20 blur-3xl will-change-transform" />
+        <div className="orb absolute top-[60%] right-[10%] w-96 h-96 rounded-full bg-gradient-to-br from-persian-100/20 to-blue-200/15 blur-3xl will-change-transform" />
+        <div className="orb absolute bottom-[10%] left-[40%] w-64 h-64 rounded-full bg-gradient-to-br from-purple-200/20 to-persian-100/15 blur-3xl will-change-transform" />
+        <div className="orb absolute top-[30%] right-[30%] w-48 h-48 rounded-full bg-gradient-to-br from-persian-200/15 to-pink-200/10 blur-3xl will-change-transform" />
       </div>
 
       {/* ── Header ──────────────────────────────────────────────────── */}
       <Header />
 
-      {/* ── Conteúdo Principal ──────────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ── Hero Section ────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="text-center mb-10"
-        >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-persian tracking-tight mb-4">
-            Seus Recursos
-            <span className="bg-gradient-to-r from-persian via-purple-600 to-persian-400 bg-clip-text text-transparent">
-              {' '}Educacionais
-            </span>
-          </h2>
-          <p className="text-persian-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-            Gerencie seus materiais didáticos de forma inteligente.
-            Use a IA para gerar descrições e categorizar automaticamente.
-          </p>
-        </motion.div>
+      {/* ── Hero Section ────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden">
+        {/* Gradiente decorativo do Hero */}
+        <div className="absolute inset-0 bg-gradient-to-b from-persian/[0.03] via-transparent to-transparent pointer-events-none" />
 
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-12 lg:pt-16 pb-8 sm:pb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="text-center mb-8 sm:mb-10 lg:mb-12"
+          >
+            {/* Badge de destaque */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-persian-50/80 border border-persian-100/50 backdrop-blur-sm mb-6"
+            >
+              <Sparkles className="w-4 h-4 text-persian" />
+              <span className="text-xs sm:text-sm font-medium text-persian-600">
+                Potencializado por Inteligência Artificial
+              </span>
+            </motion.div>
+
+            {/* Título Principal */}
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-extrabold text-persian tracking-tight mb-4 sm:mb-6">
+              Seus Recursos
+              <span className="bg-gradient-to-r from-persian via-purple-600 to-persian-400 bg-clip-text text-transparent">
+                {' '}Educacionais
+              </span>
+            </h2>
+
+            {/* Subtítulo */}
+            <p className="text-persian-400 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10">
+              Gerencie seus materiais didáticos de forma inteligente.
+              Use a IA para gerar descrições e categorizar automaticamente.
+            </p>
+
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 max-w-3xl mx-auto">
+              {heroFeatures.map((feature, index) => {
+                const FeatureIcon = feature.icon;
+                return (
+                  <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1, duration: 0.5 }}
+                    className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/40 backdrop-blur-sm border border-white/30 hover:bg-white/60 transition-all duration-300"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-persian/10 to-purple-500/10 border border-persian-100/30 flex items-center justify-center">
+                      <FeatureIcon className="w-5 h-5 text-persian" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-persian-700">{feature.title}</h3>
+                    <p className="text-xs text-persian-400 leading-relaxed">{feature.description}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Conteúdo Principal ──────────────────────────────────────── */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
         {/* ── Barra de Ações ──────────────────────────────────────── */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6 items-stretch sm:items-start">
           <div className="flex-1">
             <SearchBar
               search={search}
@@ -195,10 +237,10 @@ export default function HomePage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={handleOpenCreate}
-            className="btn-persian flex items-center justify-center gap-2 sm:self-start sm:mt-0 whitespace-nowrap"
+            className="btn-persian flex items-center justify-center gap-2 whitespace-nowrap sm:self-start sm:px-6 sm:py-3.5"
           >
             <Plus className="w-5 h-5" />
             <span>Novo Recurso</span>

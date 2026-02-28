@@ -94,12 +94,12 @@ export interface ListParams {
  * O baseURL aponta para /api/v1, que em desenvolvimento é redirecionado
  * pelo proxy do Vite para http://localhost:8000/api/v1.
  *
- * O timeout de 30 segundos é generoso o suficiente para acomodar
- * a latência da API do Gemini (que pode levar 5-15s).
+ * O timeout de 60 segundos acomoda a latência variável da API do Gemini,
+ * que pode levar entre 5-30s dependendo da carga do servidor.
  */
 const api: AxiosInstance = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
-  timeout: 30000,
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -115,10 +115,16 @@ const api: AxiosInstance = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError<{ detail: string }>) => {
-    const message =
-      error.response?.data?.detail ||
-      error.message ||
-      'Erro desconhecido ao comunicar com o servidor.';
+    let message: string;
+
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      message = 'A requisição demorou muito para responder. Tente novamente.';
+    } else {
+      message =
+        error.response?.data?.detail ||
+        error.message ||
+        'Erro desconhecido ao comunicar com o servidor.';
+    }
 
     console.error(`[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url}: ${message}`);
 

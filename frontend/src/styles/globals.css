@@ -12,6 +12,7 @@
  *   - Efeitos de Liquid Glass
  *   - Animações de fundo (gradientes animados)
  *   - Scrollbar customizada (estilo Apple)
+ *   - Otimizações de performance para scroll suave
  */
 
 @tailwind base;
@@ -33,11 +34,18 @@
       radial-gradient(ellipse at 80% 20%, rgba(39, 24, 126, 0.04) 0%, transparent 50%),
       radial-gradient(ellipse at 50% 80%, rgba(39, 24, 126, 0.02) 0%, transparent 50%);
     min-height: 100vh;
+    /* Performance: evita layout shifts e melhora scroll */
+    overflow-x: hidden;
   }
 
   /* Seleção de texto com cor da paleta */
   ::selection {
     @apply bg-persian-200 text-persian-900;
+  }
+
+  /* Performance: reduz paint durante scroll */
+  * {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
@@ -100,7 +108,9 @@
 
   /* Card com Glassmorphism e hover interativo */
   .glass-card {
-    @apply glass rounded-3xl p-6 transition-all duration-500 ease-out;
+    @apply glass rounded-3xl p-6;
+    transition: box-shadow 0.3s ease-out, transform 0.3s ease-out;
+    will-change: transform;
   }
 
   .glass-card:hover {
@@ -179,4 +189,31 @@
     background-size: 200% 100%;
     animation: shimmer 2s linear infinite;
   }
+}
+
+/* ── Keyframes ──────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Animação de gradiente para o botão de IA */
+.animate-gradient {
+  animation: gradient 2s ease infinite;
 }

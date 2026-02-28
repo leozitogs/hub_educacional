@@ -13,6 +13,7 @@
  *   - Preenchimento automático dos campos com a resposta
  *   - Tratamento elegante de erros e latência
  *   - Animação de entrada/saída do modal (scale + fade)
+ *   - Dropdown customizado estilizado para seleção de tipo de recurso
  *
  * Física da Animação do Modal:
  *   O modal utiliza uma combinação de scale e opacity para criar
@@ -27,7 +28,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Loader2, AlertCircle, Plus } from 'lucide-react';
+import { X, Sparkles, Loader2, AlertCircle, Plus, ChevronDown, Video, FileText, Link2 } from 'lucide-react';
 import { Resource, ResourceCreateData, ResourceUpdateData, ResourceType, generateWithAI } from '../services/api';
 import toast from 'react-hot-toast';
 
@@ -47,6 +48,37 @@ const initialFormState = {
   tags: [] as string[],
 };
 
+/** Configuração dos tipos de recurso para o dropdown customizado */
+const resourceTypeOptions = [
+  {
+    value: 'video' as ResourceType,
+    label: 'Vídeo',
+    icon: Video,
+    color: 'text-red-500',
+    bg: 'bg-red-50',
+    borderColor: 'border-red-200',
+    description: 'Vídeo educacional',
+  },
+  {
+    value: 'pdf' as ResourceType,
+    label: 'PDF',
+    icon: FileText,
+    color: 'text-orange-500',
+    bg: 'bg-orange-50',
+    borderColor: 'border-orange-200',
+    description: 'Documento PDF',
+  },
+  {
+    value: 'link' as ResourceType,
+    label: 'Link',
+    icon: Link2,
+    color: 'text-blue-500',
+    bg: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+    description: 'Link/Recurso Web',
+  },
+];
+
 export default function ResourceForm({ isOpen, onClose, onSubmit, editingResource }: ResourceFormProps) {
   // ── Estado do Formulário ─────────────────────────────────────────────
   const [formData, setFormData] = useState(initialFormState);
@@ -54,8 +86,10 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const isEditing = !!editingResource;
 
@@ -74,6 +108,7 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
     }
     setTagInput('');
     setAiError(null);
+    setIsDropdownOpen(false);
   }, [editingResource, isOpen]);
 
   // ── Foco automático no título ao abrir ───────────────────────────────
@@ -83,12 +118,35 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
     }
   }, [isOpen]);
 
+  // ── Fecha o dropdown ao clicar fora ──────────────────────────────────
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
+
   // ── Handlers de Input ────────────────────────────────────────────────
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  /** Seleciona o tipo de recurso via dropdown customizado */
+  const handleSelectType = (type: ResourceType) => {
+    setFormData(prev => ({ ...prev, resource_type: type }));
+    setIsDropdownOpen(false);
   };
 
   /** Adiciona uma tag ao pressionar Enter ou vírgula */
@@ -177,6 +235,10 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
     }
   };
 
+  // ── Obtém a opção selecionada atual ──────────────────────────────────
+  const selectedOption = resourceTypeOptions.find(opt => opt.value === formData.resource_type) || resourceTypeOptions[0];
+  const SelectedIcon = selectedOption.icon;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -252,25 +314,101 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
                   />
                 </div>
 
-                {/* Tipo do Recurso */}
+                {/* ── Tipo do Recurso (Dropdown Customizado) ─────────── */}
                 <div>
                   <label className="block text-sm font-semibold text-persian-700 mb-2">
                     Tipo do Recurso
                   </label>
-                  <select
-                    name="resource_type"
-                    value={formData.resource_type}
-                    onChange={handleChange}
-                    className="input-glass cursor-pointer"
-                  >
-                    <option value="video">🎬 Vídeo</option>
-                    <option value="pdf">📄 PDF</option>
-                    <option value="link">🔗 Link</option>
-                  </select>
+                  <div ref={dropdownRef} className="relative">
+                    {/* Botão do Dropdown */}
+                    <button
+                      type="button"
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className={`
+                        w-full px-4 py-3 rounded-2xl
+                        bg-white/60 backdrop-blur-sm
+                        border transition-all duration-300 ease-out
+                        text-persian-800
+                        flex items-center justify-between gap-3
+                        hover:border-persian-200
+                        focus:outline-none focus:ring-2 focus:ring-persian-300/50 focus:border-persian-300 focus:bg-white/80
+                        ${isDropdownOpen ? 'border-persian-300 bg-white/80 ring-2 ring-persian-300/50' : 'border-persian-100/50'}
+                      `}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-xl ${selectedOption.bg} ${selectedOption.borderColor} border flex items-center justify-center`}>
+                          <SelectedIcon className={`w-4 h-4 ${selectedOption.color}`} />
+                        </div>
+                        <div className="text-left">
+                          <span className="font-medium text-sm">{selectedOption.label}</span>
+                          <span className="text-xs text-persian-400 ml-2 hidden sm:inline">{selectedOption.description}</span>
+                        </div>
+                      </div>
+                      <motion.div
+                        animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <ChevronDown className="w-4 h-4 text-persian-400" />
+                      </motion.div>
+                    </button>
+
+                    {/* Lista de Opções */}
+                    <AnimatePresence>
+                      {isDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                          transition={{ duration: 0.15, ease: 'easeOut' }}
+                          className="absolute top-full left-0 right-0 mt-2 z-50 rounded-2xl overflow-hidden
+                                     bg-white/90 backdrop-blur-xl border border-persian-100/50
+                                     shadow-[0_8px_32px_rgba(39,24,126,0.12)]"
+                        >
+                          {resourceTypeOptions.map((option) => {
+                            const OptionIcon = option.icon;
+                            const isSelected = formData.resource_type === option.value;
+
+                            return (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => handleSelectType(option.value)}
+                                className={`
+                                  w-full px-4 py-3 flex items-center gap-3
+                                  transition-all duration-200 ease-out
+                                  ${isSelected
+                                    ? 'bg-persian-50/80 border-l-2 border-l-persian'
+                                    : 'hover:bg-persian-50/40 border-l-2 border-l-transparent'
+                                  }
+                                `}
+                              >
+                                <div className={`w-8 h-8 rounded-xl ${option.bg} ${option.borderColor} border flex items-center justify-center`}>
+                                  <OptionIcon className={`w-4 h-4 ${option.color}`} />
+                                </div>
+                                <div className="text-left flex-1">
+                                  <span className={`font-medium text-sm ${isSelected ? 'text-persian' : 'text-persian-700'}`}>
+                                    {option.label}
+                                  </span>
+                                  <span className="text-xs text-persian-400 ml-2">{option.description}</span>
+                                </div>
+                                {isSelected && (
+                                  <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="w-2 h-2 rounded-full bg-persian"
+                                  />
+                                )}
+                              </button>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
 
                 {/* ── Botão Smart Assist (IA) ──────────────────────── */}
-                <div className="relative">
+                <div>
                   <motion.button
                     type="button"
                     onClick={handleGenerateAI}
@@ -290,16 +428,6 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
                     {isGeneratingAI ? (
                       <>
                         {/* ── Loading State Animado e Sofisticado ──── */}
-                        {/*
-                         * O loading usa três elementos animados:
-                         * 1. Spinner rotativo (Loader2 com animate-spin)
-                         * 2. Texto com animação de pulso
-                         * 3. Gradiente animado no fundo do botão
-                         *
-                         * O gradiente animado (animate-gradient) cria a ilusão
-                         * de "energia fluindo" pelo botão, reforçando que a IA
-                         * está processando ativamente.
-                         */}
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -312,33 +440,6 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
                         >
                           Gerando com IA...
                         </motion.span>
-                        {/* Partículas decorativas durante loading */}
-                        <motion.div
-                          className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                        >
-                          {[...Array(3)].map((_, i) => (
-                            <motion.div
-                              key={i}
-                              className="absolute w-1 h-1 bg-white/40 rounded-full"
-                              animate={{
-                                x: [0, Math.random() * 200 - 100],
-                                y: [0, Math.random() * 40 - 20],
-                                opacity: [0, 1, 0],
-                              }}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                delay: i * 0.5,
-                              }}
-                              style={{
-                                left: `${30 + i * 20}%`,
-                                top: '50%',
-                              }}
-                            />
-                          ))}
-                        </motion.div>
                       </>
                     ) : (
                       <>
@@ -375,7 +476,7 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
                   <label className="block text-sm font-semibold text-persian-700 mb-2">
                     Descrição
                   </label>
-                  <motion.textarea
+                  <textarea
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
@@ -384,18 +485,6 @@ export default function ResourceForm({ isOpen, onClose, onSubmit, editingResourc
                     required
                     minLength={10}
                     maxLength={5000}
-                    /**
-                     * Animação de preenchimento automático pela IA:
-                     * Quando a IA preenche a descrição, o campo "pulsa" brevemente
-                     * com uma borda colorida, dando feedback visual de que o
-                     * conteúdo foi gerado automaticamente.
-                     */
-                    animate={
-                      formData.description && isGeneratingAI === false
-                        ? { borderColor: ['rgba(39,24,126,0.2)', 'rgba(39,24,126,0.5)', 'rgba(39,24,126,0.2)'] }
-                        : {}
-                    }
-                    transition={{ duration: 1 }}
                   />
                 </div>
 

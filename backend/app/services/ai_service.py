@@ -41,6 +41,7 @@ Tratamento de Erros:
 """
 
 import json
+import re
 import time
 from typing import Any, Optional
 
@@ -155,6 +156,7 @@ class AIService:
                 "topP": 0.9,  # Nucleus sampling para diversidade controlada
                 "topK": 40,  # Limita o vocabulário considerado
                 "maxOutputTokens": 500,  # Limite de tokens na resposta
+                "responseMimeType": "application/json",  # Força resposta em JSON válido
             },
         }
 
@@ -170,6 +172,7 @@ class AIService:
           1. Parse direto do texto como JSON.
           2. Extração de JSON de blocos markdown.
           3. Busca por padrão { ... } no texto.
+          4. Extração via regex de campos individuais.
 
         Args:
             response_data: Resposta completa da API do Gemini.
@@ -194,23 +197,56 @@ class AIService:
             text = parts[0].get("text", "").strip()
             logger.debug(f"Texto bruto do Gemini: {text}")
 
+            result = None
+
             # ── Estratégia 1: Parse direto ──────────────────────────────
             try:
                 result = json.loads(text)
             except json.JSONDecodeError:
-                # ── Estratégia 2: Extrair de bloco markdown ─────────────
-                if "```" in text:
+                pass
+
+            # ── Estratégia 2: Extrair de bloco markdown ─────────────
+            if result is None and "```" in text:
+                try:
                     # Remove delimitadores de bloco de código
                     clean = text.split("```json")[-1] if "```json" in text else text.split("```")[-2]
                     clean = clean.split("```")[0].strip()
                     result = json.loads(clean)
+                except (json.JSONDecodeError, IndexError):
+                    pass
+
+            # ── Estratégia 3: Buscar padrão JSON no texto ───────
+            if result is None:
+                start = text.find("{")
+                end = text.rfind("}") + 1
+                if start != -1 and end > 0:
+                    try:
+                        result = json.loads(text[start:end])
+                    except json.JSONDecodeError:
+                        # Tenta limpar caracteres problemáticos
+                        json_candidate = text[start:end]
+                        # Remove quebras de linha dentro de strings
+                        json_candidate = re.sub(r'(?<=\w)\n(?=\w)', ' ', json_candidate)
+                        try:
+                            result = json.loads(json_candidate)
+                        except json.JSONDecodeError:
+                            pass
+
+            # ── Estratégia 4: Extração via regex de campos individuais ──
+            if result is None:
+                desc_match = re.search(r'"description"\s*:\s*"((?:[^"\\]|\\.)*)"', text)
+                tags_match = re.search(r'"tags"\s*:\s*\[(.*?)\]', text, re.DOTALL)
+
+                if desc_match:
+                    description = desc_match.group(1)
+                    tags = []
+                    if tags_match:
+                        tags_str = tags_match.group(1)
+                        tags = [t.strip().strip('"').strip("'") for t in tags_str.split(",") if t.strip()]
+
+                    result = {"description": description, "tags": tags}
                 else:
-                    # ── Estratégia 3: Buscar padrão JSON no texto ───────
-                    start = text.find("{")
-                    end = text.rfind("}") + 1
-                    if start == -1 or end == 0:
-                        raise ValueError(f"JSON não encontrado na resposta: {text[:200]}")
-                    result = json.loads(text[start:end])
+                    raise ValueError(f"JSON não encontrado na resposta: {text[:300]}")
 
             # ── Validação da estrutura do JSON ──────────────────────────
             if "description" not in result:
@@ -275,8 +311,9 @@ class AIService:
 
         try:
             # httpx.AsyncClient é o equivalente assíncrono do requests.Session
-            # O timeout de 30s previne que a requisição bloqueie indefinidamente
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            # O timeout de 60s previne que a requisição bloqueie indefinidamente
+            # e acomoda a latência variável da API do Gemini
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     url,
                     json=payload,
@@ -316,6 +353,21 @@ class AIService:
             raise ValueError(
                 f"Erro na API do Gemini (HTTP {e.response.status_code}). "
                 f"Verifique sua GEMINI_API_KEY e tente novamente."
+            )
+
+        except httpx.TimeoutException as e:
+            latency = time.perf_counter() - start_time
+            log_ai_request(
+                logger=logger,
+                title=title,
+                resource_type=resource_type,
+                latency=latency,
+                success=False,
+            )
+            logger.error(f"Timeout na API Gemini após {latency:.1f}s: {str(e)}")
+            raise ValueError(
+                "A API do Gemini demorou muito para responder. "
+                "Tente novamente em alguns instantes."
             )
 
         except httpx.RequestError as e:
