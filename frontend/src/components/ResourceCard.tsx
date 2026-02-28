@@ -78,25 +78,18 @@ export default function ResourceCard({ resource, index, onEdit, onDelete }: Reso
   };
 
   return (
-  <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
-        // Unificamos as transições aqui
-        transition={{
-          duration: 0.5,
-          delay: index * 0.08,
-          ease: [0, 0, 0.58, 1],
-          // Adicionamos as configurações de spring como default para gestos (hover/tap)
-          type: 'spring', 
-          stiffness: 400, 
-          damping: 25 
-        }}
-        whileHover={{ y: -4 }}
-        className="glass-card group"
-        layout
-        layoutId={`resource-${resource.id}`}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20, transition: { duration: 0.3 } }}
+      transition={{
+        duration: 0.5,
+        delay: index * 0.08,
+        ease: [0, 0, 0.58, 1],
+      }}
+      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 400, damping: 25 } }}
+      className="glass-card group"
+    >
       {/* ── Header do Card ──────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-start gap-3 flex-1 min-w-0">

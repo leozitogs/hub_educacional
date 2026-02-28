@@ -26,6 +26,8 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    /* Previne scroll horizontal sem afetar o scroll vertical */
+    overflow-x: hidden;
   }
 
   body {
@@ -35,8 +37,7 @@
       radial-gradient(ellipse at 80% 20%, rgba(39, 24, 126, 0.04) 0%, transparent 50%),
       radial-gradient(ellipse at 50% 80%, rgba(39, 24, 126, 0.02) 0%, transparent 50%);
     min-height: 100vh;
-    /* Performance: evita layout shifts e melhora scroll */
-    overflow-x: hidden;
+    /* Removido overflow-x: hidden do body para evitar bugs de scroll */
   }
 
   /* Seleção de texto com cor da paleta */

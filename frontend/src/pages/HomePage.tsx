@@ -22,7 +22,6 @@
  *   - Cards de features com hover 3D (perspective + rotateX/Y)
  *   - Scroll-triggered animations via Intersection Observer
  *   - Orbs com gradiente animado e parallax sutil
- *   - Contadores numéricos animados nas stats
  *   - Micro-interações em todos os elementos interativos
  */
 
@@ -31,8 +30,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, useInView } from
 import anime from 'animejs/lib/anime.es.js';
 import {
   Plus, Sparkles, BookOpen, Zap, Brain, ArrowRight,
-  GraduationCap, Layers, Search as SearchIcon, Star,
-  TrendingUp, Shield
+  GraduationCap, Search as SearchIcon
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -147,6 +145,8 @@ function TypewriterText({ text, className, delay = 0 }: { text: string; classNam
  * O mouse tracking calcula a posição relativa do cursor sobre o card
  * e aplica rotação proporcional nos eixos X e Y, criando um efeito
  * de inclinação tridimensional realista.
+ *
+ * Utiliza h-full e flex para garantir altura uniforme entre os cards.
  */
 function FeatureCard3D({
   icon: Icon,
@@ -189,6 +189,7 @@ function FeatureCard3D({
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ delay: 0.15 + index * 0.12, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
       style={{ perspective: 800 }}
+      className="h-full"
     >
       <motion.div
         onMouseMove={handleMouseMove}
@@ -196,17 +197,17 @@ function FeatureCard3D({
         style={{ rotateX, rotateY }}
         whileHover={{ scale: 1.02 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-        className="relative group cursor-default"
+        className="relative group cursor-default h-full"
       >
         {/* Glow effect on hover */}
         <div className={`absolute -inset-0.5 rounded-3xl ${gradient} opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500`} />
 
-        <div className="relative flex flex-col items-center gap-4 p-6 sm:p-8 rounded-3xl bg-white/50 backdrop-blur-sm border border-white/40 hover:bg-white/70 transition-all duration-500 overflow-hidden">
+        <div className="relative flex flex-col items-center gap-4 p-6 sm:p-8 rounded-3xl bg-white/50 backdrop-blur-sm border border-white/40 hover:bg-white/70 transition-all duration-500 overflow-hidden h-full">
           {/* Decorative corner accent */}
           <div className={`absolute top-0 right-0 w-24 h-24 ${gradient} opacity-[0.07] rounded-bl-[60px]`} />
 
           {/* Icon container with animated ring */}
-          <div className="relative">
+          <div className="relative flex-shrink-0">
             <motion.div
               className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg`}
               whileHover={{ rotate: [0, -5, 5, 0] }}
@@ -222,48 +223,12 @@ function FeatureCard3D({
             />
           </div>
 
-          <h3 className="text-base font-bold text-persian-700 tracking-tight">{title}</h3>
-          <p className="text-sm text-persian-400 leading-relaxed text-center">{description}</p>
+          <h3 className="text-base font-bold text-persian-700 tracking-tight flex-shrink-0">{title}</h3>
+          <p className="text-sm text-persian-400 leading-relaxed text-center flex-grow">{description}</p>
         </div>
       </motion.div>
     </motion.div>
   );
-}
-
-// ── Componente: Animated Counter ───────────────────────────────────────
-/**
- * Contador numérico animado que incrementa de 0 ao valor final.
- * Utiliza requestAnimationFrame para animação suave a 60fps.
- */
-function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: string }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (!isInView) return;
-
-    let start = 0;
-    const duration = 1500;
-    const startTime = performance.now();
-
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Easing: easeOutExpo
-      const eased = 1 - Math.pow(2, -10 * progress);
-      start = Math.floor(eased * value);
-      setCount(start);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  }, [isInView, value]);
-
-  return <span ref={ref}>{count}{suffix}</span>;
 }
 
 // ── Componente: Scroll Section ─────────────────────────────────────────
@@ -315,6 +280,18 @@ export default function HomePage() {
 
   // ── Ref para animação anime.js dos orbs de fundo ─────────────────────
   const orbsRef = useRef<HTMLDivElement>(null);
+
+  // ── Controle de scroll do body quando modal está aberto ──────────────
+  useEffect(() => {
+    if (isFormOpen || deleteTarget) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isFormOpen, deleteTarget]);
 
   // ── Animação anime.js dos Orbs Decorativos ───────────────────────────
   useEffect(() => {
@@ -384,14 +361,6 @@ export default function HomePage() {
       description: 'Cadastre vídeos, PDFs e links em um hub centralizado',
       gradient: 'from-blue-500/30 to-persian/30',
     },
-  ], []);
-
-  // ── Stats para o Hero ─────────────────────────────────────────────────
-  const stats = useMemo(() => [
-    { icon: Layers, value: 3, suffix: '', label: 'Tipos de Recurso' },
-    { icon: Star, value: 100, suffix: '%', label: 'Gratuito' },
-    { icon: TrendingUp, value: 10, suffix: 'x', label: 'Mais Produtivo' },
-    { icon: Shield, value: 99, suffix: '%', label: 'Disponibilidade' },
   ], []);
 
   return (
@@ -506,31 +475,7 @@ export default function HomePage() {
               </motion.a>
             </motion.div>
 
-            {/* Stats Row */}
-            <ScrollReveal>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-3xl mx-auto mb-12 sm:mb-16">
-                {stats.map((stat, index) => {
-                  const StatIcon = stat.icon;
-                  return (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.8 + index * 0.1, duration: 0.5 }}
-                      className="flex flex-col items-center gap-1.5 p-3 sm:p-4 rounded-2xl bg-white/30 backdrop-blur-sm border border-white/30"
-                    >
-                      <StatIcon className="w-4 h-4 text-persian-300 mb-1" />
-                      <span className="text-2xl sm:text-3xl font-extrabold text-persian">
-                        <AnimatedCounter value={stat.value} suffix={stat.suffix} />
-                      </span>
-                      <span className="text-[10px] sm:text-xs text-persian-400 font-medium">{stat.label}</span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </ScrollReveal>
-
-            {/* Features Grid com 3D Cards */}
+            {/* Features Grid com 3D Cards — altura equalizada */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 max-w-4xl mx-auto">
               {heroFeatures.map((feature, index) => (
                 <FeatureCard3D
@@ -603,10 +548,7 @@ export default function HomePage() {
           <EmptyState isSearch={!!(search || filterType)} searchTerm={search} />
         ) : (
           <>
-            <motion.div
-              layout
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <AnimatePresence mode="popLayout">
                 {resources.map((resource, index) => (
                   <ResourceCard
@@ -618,7 +560,7 @@ export default function HomePage() {
                   />
                 ))}
               </AnimatePresence>
-            </motion.div>
+            </div>
 
             {/* ── Paginação ─────────────────────────────────────────── */}
             <Pagination
