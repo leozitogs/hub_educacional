@@ -110,12 +110,7 @@ class ResourceService:
         offset = (page - 1) * page_size
 
         # ── Query principal com ordenação e paginação ───────────────────
-        query = (
-            query
-            .order_by(Resource.created_at.desc())
-            .offset(offset)
-            .limit(page_size)
-        )
+        query = query.order_by(Resource.created_at.desc()).offset(offset).limit(page_size)
 
         result = await db.execute(query)
         items = list(result.scalars().all())
@@ -186,9 +181,7 @@ class ResourceService:
         return resource
 
     @staticmethod
-    async def update(
-        db: AsyncSession, resource_id: int, data: ResourceUpdate
-    ) -> Optional[Resource]:
+    async def update(db: AsyncSession, resource_id: int, data: ResourceUpdate) -> Optional[Resource]:
         """
         Atualiza parcialmente um recurso existente.
 
@@ -225,10 +218,7 @@ class ResourceService:
         await db.commit()
         await db.refresh(resource)
 
-        logger.info(
-            f"Recurso atualizado: id={resource.id}, "
-            f"campos={list(update_data.keys())}"
-        )
+        logger.info(f"Recurso atualizado: id={resource.id}, " f"campos={list(update_data.keys())}")
         return resource
 
     @staticmethod

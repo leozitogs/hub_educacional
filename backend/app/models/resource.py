@@ -113,7 +113,4 @@ class Resource(Base):
 
     def __repr__(self) -> str:
         """Representação legível do modelo para debugging e logs."""
-        return (
-            f"<Resource(id={self.id}, title='{self.title}', "
-            f"type='{self.resource_type}')>"
-        )
+        return f"<Resource(id={self.id}, title='{self.title}', " f"type='{self.resource_type}')>"

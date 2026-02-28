@@ -41,10 +41,10 @@ class StructuredFormatter(logging.Formatter):
 
     # Mapeamento de cores ANSI para cada nível de log
     COLORS: dict[int, str] = {
-        logging.DEBUG: "\033[36m",     # Ciano
-        logging.INFO: "\033[32m",      # Verde
-        logging.WARNING: "\033[33m",   # Amarelo
-        logging.ERROR: "\033[31m",     # Vermelho
+        logging.DEBUG: "\033[36m",  # Ciano
+        logging.INFO: "\033[32m",  # Verde
+        logging.WARNING: "\033[33m",  # Amarelo
+        logging.ERROR: "\033[31m",  # Vermelho
         logging.CRITICAL: "\033[35m",  # Magenta
     }
     RESET = "\033[0m"
@@ -64,14 +64,8 @@ class StructuredFormatter(logging.Formatter):
 
         # Aplica cor apenas se a saída for um terminal interativo
         if sys.stderr.isatty():
-            return (
-                f"{color}[{record.levelname}]{self.RESET} "
-                f"{timestamp} | {record.name} | {record.getMessage()}"
-            )
-        return (
-            f"[{record.levelname}] {timestamp} | "
-            f"{record.name} | {record.getMessage()}"
-        )
+            return f"{color}[{record.levelname}]{self.RESET} " f"{timestamp} | {record.name} | {record.getMessage()}"
+        return f"[{record.levelname}] {timestamp} | " f"{record.name} | {record.getMessage()}"
 
 
 def setup_logger(name: str = "hub_educacional", level: int = logging.INFO) -> logging.Logger:
@@ -137,7 +131,7 @@ def log_ai_request(
     token_info = f"TokenUsage={token_usage}" if token_usage else "TokenUsage=N/A"
 
     log_message = (
-        f"AI Request: Title=\"{title}\", Type=\"{resource_type}\", "
+        f'AI Request: Title="{title}", Type="{resource_type}", '
         f"{token_info}, Latency={latency:.2f}s, Status={status}"
     )
 

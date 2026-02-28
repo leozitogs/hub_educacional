@@ -48,6 +48,7 @@ logger = setup_logger("hub_educacional.main")
 # (deprecados desde v0.109). O código antes do yield executa no startup,
 # e o código após o yield executa no shutdown.
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """
@@ -82,8 +83,8 @@ app = FastAPI(
         "Integra IA generativa (Google Gemini) para sugestão automática de "
         "descrições e categorização de materiais didáticos."
     ),
-    docs_url="/docs",       # Swagger UI
-    redoc_url="/redoc",     # ReDoc
+    docs_url="/docs",  # Swagger UI
+    redoc_url="/redoc",  # ReDoc
     lifespan=lifespan,
 )
 
@@ -95,8 +96,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["*"],     # Permite todos os métodos HTTP
-    allow_headers=["*"],     # Permite todos os headers
+    allow_methods=["*"],  # Permite todos os métodos HTTP
+    allow_headers=["*"],  # Permite todos os headers
 )
 
 

@@ -40,12 +40,14 @@ class ResourceType(str, Enum):
     que os valores sejam serializados como strings no JSON e comparados
     diretamente com strings no código.
     """
+
     VIDEO = "video"
     PDF = "pdf"
     LINK = "link"
 
 
 # ── Schema de Criação ───────────────────────────────────────────────────
+
 
 class ResourceCreate(BaseModel):
     """
@@ -151,6 +153,7 @@ class ResourceCreate(BaseModel):
 
 # ── Schema de Atualização ──────────────────────────────────────────────
 
+
 class ResourceUpdate(BaseModel):
     """
     Schema de validação para atualização de um recurso existente.
@@ -161,11 +164,15 @@ class ResourceUpdate(BaseModel):
     """
 
     title: Optional[str] = Field(
-        None, min_length=3, max_length=255,
+        None,
+        min_length=3,
+        max_length=255,
         description="Novo título do recurso",
     )
     description: Optional[str] = Field(
-        None, min_length=10, max_length=5000,
+        None,
+        min_length=10,
+        max_length=5000,
         description="Nova descrição do recurso",
     )
     resource_type: Optional[ResourceType] = Field(
@@ -173,11 +180,14 @@ class ResourceUpdate(BaseModel):
         description="Novo tipo do recurso",
     )
     url: Optional[str] = Field(
-        None, min_length=5, max_length=2048,
+        None,
+        min_length=5,
+        max_length=2048,
         description="Nova URL do recurso",
     )
     tags: Optional[list[str]] = Field(
-        None, max_length=10,
+        None,
+        max_length=10,
         description="Novas tags do recurso",
     )
 
@@ -216,6 +226,7 @@ class ResourceUpdate(BaseModel):
 
 
 # ── Schema de Resposta ──────────────────────────────────────────────────
+
 
 class ResourceResponse(BaseModel):
     """
@@ -267,6 +278,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
 
 
 # ── Schemas de IA (Smart Assist) ────────────────────────────────────────
+
 
 class AIGenerateRequest(BaseModel):
     """

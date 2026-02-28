@@ -67,6 +67,7 @@ class Base(DeclarativeBase):
     - Metadata compartilhado para operações de migração (Alembic).
     - Introspecção de colunas e relacionamentos via __table__.
     """
+
     pass
 
 
