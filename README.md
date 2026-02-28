@@ -1,9 +1,10 @@
-# Hub Inteligente de Recursos Educacionais
 
 <p align="center">
   <strong>Autor: Leonardo Gonçalves Sobral</strong><br>
   <em>19 anos — Ciência da Computação — 3° Período</em>
 </p>
+
+# Hub Inteligente de Recursos Educacionais
 
 ---
 
@@ -102,81 +103,53 @@ Arquitetura de componentes reutilizáveis e hooks customizados:
 
 ### Pré-requisitos
 
-- **Node.js** (v18+)
-- **Python** (v3.10+)
-- **PostgreSQL** (v12+)
-- **Git**
+- Node.js (v18+)
+- Python (v3.10+)
+- PostgreSQL
+- Git
 
-### 1. Clonar o Repositório
+### 1. Clonar
 
 ```bash
 git clone https://github.com/leozitogs/hub_educacional.git
 cd hub_educacional
+```
 
-Substitua o link caso esteja usando um fork.
+### 2. Backend
 
-2. Configurar o Backend
+```bash
 cd backend
-
 python -m venv .venv
-
-# Linux/Mac
-source .venv/bin/activate
-
-# Windows
 .venv\Scripts\activate
-
 pip install -r requirements.txt
-
 cp .env.example .env
+```
 
-Editar .env:
+Rodar:
 
-DATABASE_URL=postgresql+asyncpg://usuario:senha@localhost:5432/hub_educacional
-
-GEMINI_API_KEY=sua_chave_gemini
-
-Criar banco PostgreSQL:
-
-hub_educacional
-
-Rodar backend:
-
+```bash
 uvicorn app.main:app --reload
+```
 
-API disponível em:
+### 3. Frontend
 
-http://localhost:8000
-
-Swagger:
-
-http://localhost:8000/docs
-3. Configurar o Frontend
+```bash
 cd frontend
-
 npm install
-
 npm run dev
+```
 
-Frontend disponível em:
+---
 
-http://localhost:5173
-7. Documentação da API
+## 7. API
 
-Prefixo:
+| Método | Endpoint |
+|-------|---------|
+GET | /resources
+POST | /resources
 
-/api/v1
-Endpoints
-Método	Endpoint	Descrição
-GET	/resources	Lista recursos com paginação
-GET	/resources/{id}	Obtém recurso por ID
-POST	/resources	Cria novo recurso
-PUT	/resources/{id}	Atualiza recurso
-DELETE	/resources/{id}	Remove recurso
-POST	/ai/generate	Gera descrição com IA
-GET	/health	Health Check
+---
 
-Documentação interativa disponível em:
-
-http://localhost:8000/docs
-<p align="center"> <strong>Desenvolvido com 💙 por Leonardo Gonçalves Sobral</strong> </p> ```
+<p align="center"> 
+   <strong>Desenvolvido com 💙 por Leonardo Gonçalves Sobral</strong> 
+</p>
